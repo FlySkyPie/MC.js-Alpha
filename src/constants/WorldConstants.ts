@@ -136,7 +136,14 @@ export const CHUNK_NEIGHBORS = [
     },
 ];
 
-export const BLOCK_TYPES = {
+export type CubeType = {
+    id: number;
+    isTransparent: boolean;
+};
+
+export type VoxelType = CubeType | 0;
+
+export const BLOCK_TYPES: { [key: string]: VoxelType } = {
     AIR: 0,
     GRASS: { id: 0, isTransparent: false },
     DIRT: { id: 1, isTransparent: false },

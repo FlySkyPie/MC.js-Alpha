@@ -11,7 +11,7 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
     cz: number;
     canvas: Element;
     world: World;
-    currBlock: any;
+    currBlock: WorldConstants.CubeType;
 
     // vectors for ray casting from player cursor
     start: THREE.Vector3 = new THREE.Vector3();
@@ -46,7 +46,7 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
         this.world = world;
 
         // default block to place (grass)
-        this.currBlock = Object.entries(WorldConstants.BLOCK_TYPES)[1][1];
+        this.currBlock = Object.entries(WorldConstants.BLOCK_TYPES)[1][1] as WorldConstants.CubeType;
     }
 
     jump() {
@@ -129,7 +129,7 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
         return this.intersectRay(start, end);
     }
 
-    intersectRay(start: any, end: any) {
+    private intersectRay(start: THREE.Vector3, end: THREE.Vector3) {
         let dx = end.x - start.x;
         let dy = end.y - start.y;
         let dz = end.z - start.z;

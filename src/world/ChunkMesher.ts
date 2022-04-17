@@ -3,10 +3,12 @@ import * as THREE from "three";
 import * as WorldConstants from "../constants/WorldConstants";
 import * as TextureConstants from "../constants/TextureConstants";
 
+import Chunk from "./Chunk.js";
+
 export default class ChunkMesher {
-    chunk: any;
+    chunk: Chunk;
     
-    constructor(chunk: any) {
+    constructor(chunk: Chunk) {
         this.chunk = chunk;
     }
 

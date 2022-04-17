@@ -5,10 +5,11 @@ import * as WorldConstants from "../constants/WorldConstants";
 import ChunkMesher from "./ChunkMesher";
 import { simplex } from './noise';
 
+
 export default class Chunk {
-    voxels: any[];
-    elevation: any[];
-    neighbors: any[];
+    voxels: WorldConstants.VoxelType[];
+    elevation: number[];
+    neighbors: Chunk[];
 
     generated = false;
     cx: number;
@@ -17,9 +18,9 @@ export default class Chunk {
     material: THREE.MeshPhongMaterial;
     t_material: THREE.MeshPhongMaterial;
 
-    mesh: any;
-    t_mesh: any;
-    texture: any;
+    mesh?: THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhongMaterial>;
+    t_mesh?: THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhongMaterial>;
+    //texture: any;
     mesher: ChunkMesher;
 
 
@@ -39,15 +40,14 @@ export default class Chunk {
         this.material = material;
         this.t_material = t_material;
 
-        this.mesh;
-        this.t_mesh;
-        this.texture;
+        //this.mesh;
+        //this.t_mesh;
+        //this.texture;
 
         this.mesher = new ChunkMesher(this);
     }
 
-    setVoxel(x: number, y: number, z: number, type: any) {
-        const { neighbors } = this;
+    setVoxel(x: number, y: number, z: number, type: WorldConstants.VoxelType) {
         var index = this.calculateVoxelIndex(x, y, z);
 
         if (index == null) return;
@@ -62,8 +62,8 @@ export default class Chunk {
         return this.voxels[index];
     }
 
-    doesNeighborVoxelExist(x: number, y: number, z: number, voxel: any) {
-        const { voxels, cx, cz, neighbors } = this;
+    doesNeighborVoxelExist(x: number, y: number, z: number, voxel: WorldConstants.VoxelType) {
+        const { cx, cz, } = this;
         var vx = x - WorldConstants.CHUNK_SIZE * cx;
         var vy = y % WorldConstants.WORLD_HEIGHT;
         var vz = z - WorldConstants.CHUNK_SIZE * cz;
@@ -119,7 +119,7 @@ export default class Chunk {
         const { neighbors } = this;
         const vNeighbors = [];
 
-        const { vx, vy, vz } = this.calculateVoxelCoordsInChunk(x, y, z);
+        const { vx, vz } = this.calculateVoxelCoordsInChunk(x, y, z);
 
         if (vx == 0) vNeighbors.push(neighbors[7]);
         if (vx == WorldConstants.CHUNK_SIZE - 1) vNeighbors.push(neighbors[3]);
@@ -163,7 +163,7 @@ export default class Chunk {
         const { geometry, t_geometry } = this.mesher.mesh();
         const { material, t_material } = this;
 
-        const { cx, cz } = this;
+        //const { cx, cz } = this;
 
         if (!this.mesh) {
             this.mesh = new THREE.Mesh(geometry, material);
@@ -172,23 +172,23 @@ export default class Chunk {
         }
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
-        this.mesh.name = [cx, cz];
+        //this.mesh.name = [cx, cz];
 
         if (!this.t_mesh) {
             this.t_mesh = new THREE.Mesh(t_geometry, t_material);
         } else {
             this.t_mesh.geometry = t_geometry;
         }
-        this.t_mesh.name = [cx, cz];
+        //this.t_mesh.name = [cx, cz];
     }
 
-    generateTerrain(seed: any) {
+    generateTerrain(seed?: any) {
         const { cx, cz, elevation } = this;
 
         const freq = WorldConstants.DEFAULT_FREQUENCY;
         const amp = WorldConstants.AMPLITUDE;
-        const exp = WorldConstants.EXPONENT;
-        const levels = WorldConstants.LEVELS;
+        //const exp = WorldConstants.EXPONENT;
+        //const levels = WorldConstants.LEVELS;
         const base = WorldConstants.BASE_HEIGHT;
 
         // https://www.redblobgames.com/maps/terrain-from-noise/

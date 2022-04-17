@@ -5,16 +5,18 @@ import * as CameraConstants from "../constants/CameraConstants";
 import * as WorldConstants from "../constants/WorldConstants";
 import World from "../world/World";
 
+import { PlayerCamera } from './PlayerCamera';
+
 export class PlayerControls extends PointerLockControls {
     wireframeOn = false;
-    camera: any;
+    camera: PlayerCamera;
     world: World;
-    keys: any[];
+    keys: number[];
     voxelHighlight: THREE.LineSegments;
     hotbarButtons: NodeListOf<HTMLInputElement>;
     boundingBox: THREE.Mesh;
 
-    constructor(camera: any, domElement: HTMLElement, world: World, scene: THREE.Scene) {
+    constructor(camera: PlayerCamera, domElement: HTMLElement, world: World, scene: THREE.Scene) {
         super(camera, domElement);
         this.camera = camera;
 
@@ -87,7 +89,7 @@ export class PlayerControls extends PointerLockControls {
                 event.preventDefault();
             });
 
-            if (button.id == camera.currBlock.id) {
+            if (parseInt(button.id) === camera.currBlock.id) {
                 button.checked = true;
             }
         }
@@ -111,9 +113,13 @@ export class PlayerControls extends PointerLockControls {
                     button.checked = false;
                     nextButton.checked = true;
 
-                    camera.currBlock = Object.entries(
+                    const block = Object.entries(
                         WorldConstants.BLOCK_TYPES
                     )[parseInt(nextButton.id) + 1][1];
+
+                    if (block !== 0) {
+                        camera.currBlock = block;
+                    }
                     break;
                 }
             }
@@ -132,7 +138,7 @@ export class PlayerControls extends PointerLockControls {
 
     update() {
         // movement controls
-        const { keys, camera, boundingBox } = this;
+        const { keys, camera } = this;
 
         const currPosition = camera.position.clone();
 
@@ -172,7 +178,7 @@ export class PlayerControls extends PointerLockControls {
         const intersection = camera.calculateIntersection();
 
         if (intersection) {
-            const pos = intersection.position.map((v: any, ndx: any) => {
+            const pos = intersection.position.map((v: number, ndx: number) => {
                 return Math.ceil(v + intersection.normal[ndx] * -0.5) - 0.5;
             });
 
@@ -193,7 +199,7 @@ export class PlayerControls extends PointerLockControls {
         );
     }
 
-    detectCollision(currPosition: any, newPosition: any) {
+    detectCollision(currPosition: THREE.Vector3, newPosition: THREE.Vector3) {
         const { world, boundingBox } = this;
 
         const dx = newPosition.x - currPosition.x;
@@ -241,17 +247,17 @@ export class PlayerControls extends PointerLockControls {
         if (!canMoveZ) this.getObject().position.z -= dz;
     }
 
-    placeVoxel(voxel: any) {
+    placeVoxel(voxel: WorldConstants.VoxelType) {
         const { camera, world, boundingBox } = this;
 
         const intersection = camera.calculateIntersection();
         if (intersection) {
-            const pos = intersection.position.map((v: any, ndx: any) => {
+            const pos = intersection.position.map((v: number, ndx: number) => {
                 return v + intersection.normal[ndx] * (voxel ? 0.5 : -0.5);
             });
 
             // position of voxel being placed
-            const fPos = pos.map((x: any) => {
+            const fPos = pos.map((x: number) => {
                 return Math.floor(x);
             });
 

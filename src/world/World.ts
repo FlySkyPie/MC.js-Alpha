@@ -1,33 +1,23 @@
 import * as THREE from "three";
 
-import Chunk from "./Chunk.js";
 import * as WorldConstants from "../constants/WorldConstants";
 import * as SceneConstants from "../constants/SceneConstants";
+import { PlayerCamera } from "../player/PlayerCamera";
+
+import Chunk from "./Chunk.js";
 
 export default class World {
-    chunks: any[];
-    renderedChunks: any[];
+    chunks: Chunk[][] = [];
 
     texture?: THREE.Texture;
-    debug: boolean;
+    debug: boolean = false;
 
     material: THREE.MeshPhongMaterial;
     t_material: THREE.MeshPhongMaterial;
     seed: number;
 
-
-
-
     constructor() {
-        this.chunks = [];
-
-        // this.renderedChunks = new Array(CameraConstants.RENDER_DISTANCE*CameraConstants.RENDER_DISTANCE*4);
-        this.renderedChunks = [];
-        this.texture;
-        this.debug = false;
-
         this.seed = Math.random();
-        //noise.seed(this.seed);
 
         this.material = new THREE.MeshPhongMaterial({
             transparent: false,
@@ -75,7 +65,7 @@ export default class World {
         return chunk.getVoxel(fx, fy, fz);
     }
 
-    setVoxel(x: number, y: number, z: number, type: any) {
+    setVoxel(x: number, y: number, z: number, type: WorldConstants.VoxelType) {
         const cx = Math.floor(x / WorldConstants.CHUNK_SIZE);
         const cz = Math.floor(z / WorldConstants.CHUNK_SIZE);
 
@@ -100,7 +90,7 @@ export default class World {
         const chunk = chunks[x][z];
 
         this.updateNeighborsOfChunk(chunk);
-        if (!chunk.addedTrees) chunk.generateTrees(this);
+        //if (!chunk.addedTrees) chunk.generateTrees(this);
         chunk.updateMesh();
     }
 
@@ -109,7 +99,7 @@ export default class World {
         return this.chunks[x][z];
     }
 
-    updateNeighborsOfChunk(chunk: any) {
+    updateNeighborsOfChunk(chunk: Chunk) {
         const { cx, cz } = chunk;
         for (let i = 0; i < WorldConstants.CHUNK_NEIGHBORS.length; i++) {
             const cnx = cx + WorldConstants.CHUNK_NEIGHBORS[i].dir[0];
@@ -122,10 +112,10 @@ export default class World {
         }
     }
 
-    updateChunksAroundPlayerChunk(camera: any, scene: THREE.Scene) {
+    updateChunksAroundPlayerChunk(camera: PlayerCamera, scene: THREE.Scene) {
         // check if chunk coordinates changed
-        const [cx, cy, cz] = camera.getCameraChunkCoords();
-        const [pbx, pfx, pby, pfy, pbz, pfz] = camera.getCameraRenderingAreaCoords();
+        const [cx, , cz] = camera.getCameraChunkCoords();
+        const [pbx, pfx, , , pbz, pfz] = camera.getCameraRenderingAreaCoords();
 
         // check all chunks within render distance
         for (let x = pbx; x <= pfx; ++x) {
@@ -138,8 +128,15 @@ export default class World {
                     this.updateChunk(x, z);
                 }
 
-                scene.add(chunk.mesh);
-                scene.add(chunk.t_mesh);
+                if (chunk.mesh === undefined) {
+                    throw new Error();
+                }
+                if (chunk.t_mesh === undefined) {
+                    throw new Error();
+                }
+
+                chunk.mesh && scene.add(chunk.mesh);
+                chunk.t_mesh && scene.add(chunk.t_mesh);
 
                 if (this.debug) {
                     chunk.mesh.material.wireframe = true;
@@ -170,8 +167,8 @@ export default class World {
 
             if (x < pbx || x > pfx || z < pbz || z > pfz) {
                 if (chunk) {
-                    if (scene.children.includes(chunk.mesh)) scene.remove(chunk.mesh);
-                    if (scene.children.includes(chunk.t_mesh)) scene.remove(chunk.t_mesh);
+                    if (chunk.mesh && scene.children.includes(chunk.mesh)) scene.remove(chunk.mesh);
+                    if (chunk.t_mesh && scene.children.includes(chunk.t_mesh)) scene.remove(chunk.t_mesh);
                 }
             }
         }
