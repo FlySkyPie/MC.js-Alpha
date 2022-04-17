@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
 
-import * as CameraConstants from "../constants/CameraConstants.js";
-import * as WorldConstants from "../constants/WorldConstants.js";
+import * as CameraConstants from "../constants/CameraConstants";
+import * as WorldConstants from "../constants/WorldConstants";
 
 export class PlayerControls extends PointerLockControls {
     constructor(camera, domElement, world, scene) {

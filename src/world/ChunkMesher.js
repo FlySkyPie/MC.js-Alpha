@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-import World from "./World.js";
-import * as WorldConstants from "../constants/WorldConstants.js";
-import * as TextureConstants from "../constants/TextureConstants.js";
+import World from "./World";
+import * as WorldConstants from "../constants/WorldConstants";
+import * as TextureConstants from "../constants/TextureConstants";
 
 export default class ChunkMesher {
     constructor(chunk) {

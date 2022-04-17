@@ -1,11 +1,23 @@
 import * as THREE from "three";
 
 import Chunk from "./Chunk.js";
-import * as WorldConstants from "../constants/WorldConstants.js";
-import * as CameraConstants from "../constants/CameraConstants.js";
-import * as SceneConstants from "../constants/SceneConstants.js";
+import * as WorldConstants from "../constants/WorldConstants";
+import * as SceneConstants from "../constants/SceneConstants";
 
 export default class World {
+    chunks: any[];
+    renderedChunks: any[];
+
+    texture?: THREE.Texture;
+    debug: boolean;
+
+    material: THREE.MeshPhongMaterial;
+    t_material: THREE.MeshPhongMaterial;
+    seed: number;
+
+
+
+
     constructor() {
         this.chunks = [];
 
@@ -29,13 +41,13 @@ export default class World {
         });
     }
 
-    setTexture(texture) {
+    setTexture(texture: THREE.Texture) {
         this.texture = texture;
         this.material.map = texture;
         this.t_material.map = texture;
     }
 
-    createChunkIfDNE(x, z) {
+    createChunkIfDNE(x: number, z: number) {
         const { chunks } = this;
 
         if (!chunks[x]) chunks[x] = [];
@@ -48,7 +60,7 @@ export default class World {
         chunk.generateTerrain(this.seed);
     }
 
-    getVoxel(x, y, z) {
+    getVoxel(x: number, y: number, z: number) {
         const cx = Math.floor(x / WorldConstants.CHUNK_SIZE);
         const cz = Math.floor(z / WorldConstants.CHUNK_SIZE);
 
@@ -63,7 +75,7 @@ export default class World {
         return chunk.getVoxel(fx, fy, fz);
     }
 
-    setVoxel(x, y, z, type) {
+    setVoxel(x: number, y: number, z: number, type: any) {
         const cx = Math.floor(x / WorldConstants.CHUNK_SIZE);
         const cz = Math.floor(z / WorldConstants.CHUNK_SIZE);
 
@@ -79,10 +91,10 @@ export default class World {
         chunk.setVoxel(fx, fy, fz, type);
         chunk.updateMesh();
 
-        for (const neighbor of chunk.getChunkNeighborsOfVoxel(fx,fy,fz)) neighbor.updateMesh();
+        for (const neighbor of chunk.getChunkNeighborsOfVoxel(fx, fy, fz)) neighbor.updateMesh();
     }
 
-    updateChunk(x, z) {
+    updateChunk(x: number, z: number) {
         const { chunks } = this;
 
         const chunk = chunks[x][z];
@@ -92,12 +104,12 @@ export default class World {
         chunk.updateMesh();
     }
 
-    getChunk(x, z) {
+    getChunk(x: number, z: number) {
         if (!this.chunks[x] || !this.chunks[x][z]) return;
         return this.chunks[x][z];
     }
 
-    updateNeighborsOfChunk(chunk) {
+    updateNeighborsOfChunk(chunk: any) {
         const { cx, cz } = chunk;
         for (let i = 0; i < WorldConstants.CHUNK_NEIGHBORS.length; i++) {
             const cnx = cx + WorldConstants.CHUNK_NEIGHBORS[i].dir[0];
@@ -110,7 +122,7 @@ export default class World {
         }
     }
 
-    updateChunksAroundPlayerChunk(camera, scene) {
+    updateChunksAroundPlayerChunk(camera: any, scene: THREE.Scene) {
         // check if chunk coordinates changed
         const [cx, cy, cz] = camera.getCameraChunkCoords();
         const [pbx, pfx, pby, pfy, pbz, pfz] = camera.getCameraRenderingAreaCoords();
@@ -149,8 +161,8 @@ export default class World {
 
         // check each mesh if its within bounds of player render distance
         for (const { name } of scene.children) {
-            const x = name[0];
-            const z = name[1];
+            const x = parseInt(name[0]);
+            const z = parseInt(name[1]);
             var chunk;
             if (this.chunks[x] && this.chunks[x][z]) {
                 chunk = this.chunks[x][z];

@@ -1,5 +1,4 @@
-import * as WorldConstants from "./WorldConstants.js";
-import * as GameConstants from "./GameConstants.js";
+import * as WorldConstants from "./WorldConstants";
 
 export const RENDER_DISTANCE = 8;
 

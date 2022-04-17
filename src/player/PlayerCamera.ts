@@ -1,13 +1,30 @@
 import * as THREE from "three";
 
-import * as CameraConstants from "../constants/CameraConstants.js";
-import * as WorldConstants from "../constants/WorldConstants.js";
-import * as SceneConstants from "../constants/SceneConstants.js";
-import World from "../world/World.js";
-//import { Camera } from "../../three/src/Three.js";
+import * as CameraConstants from "../constants/CameraConstants";
+import * as WorldConstants from "../constants/WorldConstants";
+import * as SceneConstants from "../constants/SceneConstants";
+import World from "../world/World";
 
 export class PlayerCamera extends THREE.PerspectiveCamera {
-    constructor(canvas, world, scene) {
+    cx: number;
+    cy: number = 0;
+    cz: number;
+    canvas: Element;
+    world: World;
+    currBlock: any;
+
+    // vectors for ray casting from player cursor
+    start: THREE.Vector3 = new THREE.Vector3();
+    dir: THREE.Vector3 = new THREE.Vector3();
+    end: THREE.Vector3 = new THREE.Vector3();
+
+    // velocities in each direction
+    xSpeed: number = 0;
+    ySpeed: number = 0;
+    zSpeed: number = 0;
+    canJump: boolean = false;
+
+    constructor(canvas: Element, world: World) {
         super(
             CameraConstants.FOV,
             CameraConstants.ASPECT,
@@ -23,24 +40,13 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
         this.cx = CameraConstants.CAMERA_DEFAULT_CHUNK_X;
         this.cz = CameraConstants.CAMERA_DEFAULT_CHUNK_Z;
 
-        const self = this;
+        //const self = this;
 
         this.canvas = canvas;
         this.world = world;
 
         // default block to place (grass)
         this.currBlock = Object.entries(WorldConstants.BLOCK_TYPES)[1][1];
-
-        // vectors for ray casting from player cursor
-        this.start = new THREE.Vector3();
-        this.dir = new THREE.Vector3();
-        this.end = new THREE.Vector3();
-
-        // velocities in each direction
-        this.xSpeed = 0;
-        this.ySpeed = 0;
-        this.zSpeed = 0;
-        this.canJump = false;
     }
 
     jump() {
@@ -64,7 +70,7 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
         return [cx, cy, cz];
     }
 
-    setCameraChunkCoords(cx, cy, cz) {
+    setCameraChunkCoords(cx: number, cy: number, cz: number) {
         this.cx = cx;
         this.cy = cy;
         this.cz = cz;
@@ -86,7 +92,7 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
         return [pbx, pfx, pby, pfy, pbz, pfz];
     }
 
-    updateFog(scene, world) {
+    updateFog(scene: THREE.Scene, world: World) {
         if (world.debug) return;
         const voxel = world.getVoxel(
             this.position.x,
@@ -123,7 +129,7 @@ export class PlayerCamera extends THREE.PerspectiveCamera {
         return this.intersectRay(start, end);
     }
 
-    intersectRay(start, end) {
+    intersectRay(start: any, end: any) {
         let dx = end.x - start.x;
         let dy = end.y - start.y;
         let dz = end.z - start.z;

@@ -53,7 +53,7 @@ const preload = async () => {
 
 const init = () => {
   // Three basic setup.
-  const canvas = document.querySelector("#c");
+  const canvas = document.querySelector("#c")!;
   const renderer = new THREE.WebGLRenderer({ canvas });
   const scene = new THREE.Scene();
 

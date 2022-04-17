@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import * as WorldConstants from "./WorldConstants.js";
-import * as CameraConstants from "./CameraConstants.js";
+import * as WorldConstants from "./WorldConstants";
+import * as CameraConstants from "./CameraConstants";
 
 export const LIGHT_COLOR = 0xffffff;
 export const INTENSITY = 0.5;
