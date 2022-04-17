@@ -3,58 +3,60 @@ import { PointerLockControls } from "three/examples/jsm/controls/PointerLockCont
 
 import * as CameraConstants from "../constants/CameraConstants";
 import * as WorldConstants from "../constants/WorldConstants";
+import World from "../world/World";
 
 export class PlayerControls extends PointerLockControls {
-    constructor(camera, domElement, world, scene) {
+    wireframeOn = false;
+    camera: any;
+    world: World;
+    keys: any[];
+    voxelHighlight: THREE.LineSegments;
+    hotbarButtons: NodeListOf<HTMLInputElement>;
+    boundingBox: THREE.Mesh;
+
+    constructor(camera: any, domElement: HTMLElement, world: World, scene: THREE.Scene) {
         super(camera, domElement);
         this.camera = camera;
 
-        this.wireframeOn = false;
-
         this.world = world;
 
-        this.addEventListener("lock", function () {});
-        this.addEventListener("unlock", function () {});
+        this.addEventListener("lock", function () { });
+        this.addEventListener("unlock", function () { });
 
-        var self = this;
-        document.body.addEventListener("click", function () {
-            self.lock();
+        document.body.addEventListener("click", () => {
+            this.lock();
         });
 
         // keyboard controls
         this.keys = [];
         document.addEventListener("keydown", (e) => {
-            self.keys.push(e.keyCode);
+            this.keys.push(e.keyCode);
         });
         document.addEventListener("keyup", (e) => {
             var arr = [];
-            for (var i = 0; i < self.keys.length; i++) {
-                if (self.keys[i] != e.keyCode) {
-                    arr.push(self.keys[i]);
+            for (var i = 0; i < this.keys.length; i++) {
+                if (this.keys[i] != e.keyCode) {
+                    arr.push(this.keys[i]);
                 }
             }
-            self.keys = arr;
+            this.keys = arr;
         });
 
         // mouse controls
         window.addEventListener(
-            "mousedown",
+            "click",
             (event) => {
                 event.preventDefault();
 
                 // left click
-                if (event.button === 0)
-                    window.addEventListener(
-                        "mouseup",
-                        self.placeVoxel(WorldConstants.BLOCK_TYPES.AIR)
-                    );
+                if (event.button === 0) {
+                    this.placeVoxel(WorldConstants.BLOCK_TYPES.AIR)
+                }
 
                 // right click
-                if (event.button === 2)
-                    window.addEventListener(
-                        "mouseup",
-                        self.placeVoxel(self.camera.currBlock)
-                    );
+                if (event.button === 2) {
+                    this.placeVoxel(this.camera.currBlock)
+                }
             },
             { passive: false }
         );
@@ -80,7 +82,7 @@ export class PlayerControls extends PointerLockControls {
         this.hotbarButtons = document.querySelectorAll("input.voxel");
         const hotbarButtons = this.hotbarButtons;
 
-        for (const button of hotbarButtons) {
+        for (const button of Array.from(hotbarButtons)) {
             button.addEventListener("click", (event) => {
                 event.preventDefault();
             });
@@ -91,7 +93,7 @@ export class PlayerControls extends PointerLockControls {
         }
 
         window.addEventListener("wheel", (event) => {
-            for (const button of hotbarButtons) {
+            for (const button of Array.from(hotbarButtons)) {
                 if (button.checked) {
                     var nextButton;
                     const id = parseInt(button.id);
@@ -170,12 +172,12 @@ export class PlayerControls extends PointerLockControls {
         const intersection = camera.calculateIntersection();
 
         if (intersection) {
-            const pos = intersection.position.map((v, ndx) => {
+            const pos = intersection.position.map((v: any, ndx: any) => {
                 return Math.ceil(v + intersection.normal[ndx] * -0.5) - 0.5;
             });
 
             this.voxelHighlight.visible = true;
-            this.voxelHighlight.position.set(...pos);
+            this.voxelHighlight.position.set(pos[0], pos[1], pos[2]);
         } else {
             this.voxelHighlight.visible = false;
         }
@@ -191,7 +193,7 @@ export class PlayerControls extends PointerLockControls {
         );
     }
 
-    detectCollision(currPosition, newPosition) {
+    detectCollision(currPosition: any, newPosition: any) {
         const { world, boundingBox } = this;
 
         const dx = newPosition.x - currPosition.x;
@@ -205,7 +207,7 @@ export class PlayerControls extends PointerLockControls {
         // check each vertex of player's bounding box and see if  player's new position in each direction
         // is blocked by voxel
 
-        for (const vertice of boundingBox.geometry.vertices) {
+        for (const vertice of (boundingBox.geometry as any).vertices) {
             const verticeCopy = vertice.clone();
             boundingBox.localToWorld(verticeCopy);
 
@@ -239,28 +241,28 @@ export class PlayerControls extends PointerLockControls {
         if (!canMoveZ) this.getObject().position.z -= dz;
     }
 
-    placeVoxel(voxel) {
+    placeVoxel(voxel: any) {
         const { camera, world, boundingBox } = this;
 
         const intersection = camera.calculateIntersection();
         if (intersection) {
-            const pos = intersection.position.map((v, ndx) => {
+            const pos = intersection.position.map((v: any, ndx: any) => {
                 return v + intersection.normal[ndx] * (voxel ? 0.5 : -0.5);
             });
 
             // position of voxel being placed
-            const fPos = pos.map((x) => {
+            const fPos = pos.map((x: any) => {
                 return Math.floor(x);
             });
 
             var canPlace = true;
 
             // check each vertex of bounding box to check for voxel being placed
-            for (const vertice of boundingBox.geometry.vertices) {
+            for (const vertice of (boundingBox.geometry as any).vertices) {
                 const verticeCopy = vertice.clone();
                 boundingBox.localToWorld(verticeCopy);
 
-                const vertPos = Object.values(verticeCopy).map((x) => {
+                const vertPos = Object.values(verticeCopy).map((x: any) => {
                     return Math.floor(x);
                 });
 
@@ -270,7 +272,7 @@ export class PlayerControls extends PointerLockControls {
                     canPlace = false;
             }
 
-            if (canPlace) world.setVoxel(...pos, voxel);
+            if (canPlace) world.setVoxel(pos[0], pos[1], pos[2], voxel);
         }
     }
 }

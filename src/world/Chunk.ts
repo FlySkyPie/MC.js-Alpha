@@ -1,19 +1,33 @@
-import SimplexNoise from 'simplex-noise';
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import * as THREE from "three";
 
-import World from "./World";
 import * as WorldConstants from "../constants/WorldConstants";
-import * as TextureConstants from "../constants/TextureConstants";
-import ChunkMesher from "./ChunkMesher.js";
+import ChunkMesher from "./ChunkMesher";
 import { simplex } from './noise';
 
 export default class Chunk {
-    constructor(cx, cy, cz, material, t_material) {
+    voxels: any[];
+    elevation: any[];
+    neighbors: any[];
+
+    generated = false;
+    cx: number;
+    cy: number;
+    cz: number;
+    material: THREE.MeshPhongMaterial;
+    t_material: THREE.MeshPhongMaterial;
+
+    mesh: any;
+    t_mesh: any;
+    texture: any;
+    mesher: ChunkMesher;
+
+
+    constructor(cx: number, cy: number, cz: number, material: THREE.MeshPhongMaterial, t_material: THREE.MeshPhongMaterial) {
         this.voxels = new Array(WorldConstants.CHUNK_SIZE * WorldConstants.CHUNK_SIZE * WorldConstants.WORLD_HEIGHT);
         this.voxels.fill(0);
         this.elevation = new Array(WorldConstants.CHUNK_SIZE * WorldConstants.CHUNK_SIZE);
-        this.generated = false;
+        //this.generated = false;
 
         this.cx = cx;
         this.cy = cy;
@@ -32,7 +46,7 @@ export default class Chunk {
         this.mesher = new ChunkMesher(this);
     }
 
-    setVoxel(x, y, z, type) {
+    setVoxel(x: number, y: number, z: number, type: any) {
         const { neighbors } = this;
         var index = this.calculateVoxelIndex(x, y, z);
 
@@ -40,12 +54,15 @@ export default class Chunk {
 
         this.voxels[index] = type;
     }
-    getVoxel(x, y, z) {
-        var index = this.calculateVoxelIndex(x, y, z);
+    getVoxel(x: number, y: number, z: number) {
+        const index = this.calculateVoxelIndex(x, y, z);
+        if (index === null) {
+            return undefined;
+        }
         return this.voxels[index];
     }
 
-    doesNeighborVoxelExist(x, y, z, voxel) {
+    doesNeighborVoxelExist(x: number, y: number, z: number, voxel: any) {
         const { voxels, cx, cz, neighbors } = this;
         var vx = x - WorldConstants.CHUNK_SIZE * cx;
         var vy = y % WorldConstants.WORLD_HEIGHT;
@@ -86,7 +103,7 @@ export default class Chunk {
         return true;
     }
 
-    getVoxelFromNeighborsFaces(x, y, z) {
+    getVoxelFromNeighborsFaces(x: number, y: number, z: number) {
         const { neighbors } = this;
 
         for (let i = 1; i < neighbors.length; i += 2) {
@@ -98,7 +115,7 @@ export default class Chunk {
         return null;
     }
 
-    getChunkNeighborsOfVoxel(x, y, z) {
+    getChunkNeighborsOfVoxel(x: number, y: number, z: number) {
         const { neighbors } = this;
         const vNeighbors = [];
 
@@ -113,13 +130,13 @@ export default class Chunk {
 
     }
 
-    calculateElevationIndex(x, z) {
+    calculateElevationIndex(x: number, z: number) {
 
         var index = x + z * WorldConstants.CHUNK_SIZE;
         return index;
     }
 
-    calculateVoxelIndex(x, y, z) {
+    calculateVoxelIndex(x: number, y: number, z: number) {
         const { cx, cz } = this;
         var vx = x - WorldConstants.CHUNK_SIZE * cx;
         var vy = y;
@@ -133,7 +150,7 @@ export default class Chunk {
         return index;
     }
 
-    calculateVoxelCoordsInChunk(x, y, z) {
+    calculateVoxelCoordsInChunk(x: number, y: number, z: number) {
         const { cx, cz } = this;
         var vx = x - WorldConstants.CHUNK_SIZE * cx;
         var vy = y;
@@ -165,7 +182,7 @@ export default class Chunk {
         this.t_mesh.name = [cx, cz];
     }
 
-    generateTerrain(seed) {
+    generateTerrain(seed: any) {
         const { cx, cz, elevation } = this;
 
         const freq = WorldConstants.DEFAULT_FREQUENCY;
@@ -192,7 +209,7 @@ export default class Chunk {
                 // e = Math.round(e * levels)/levels;
 
                 // REDISTRIBUTION
-                e = Math.exp(e, exp);
+                e = Math.exp(e);
 
                 var height = Math.floor(e * amp) + base;
 
@@ -249,8 +266,8 @@ export default class Chunk {
         this.generated = true;
     }
 
-    addTree(x, y, z) {
-        const { cx, cz } = this;
+    addTree(x: number, y: number, z: number) {
+        //const { cx, cz } = this;
         if (y > WorldConstants.TREE_Y_CUTOFF) {
             const treeHeight = Math.floor(
                 Math.random() * WorldConstants.TREE_HEIGHT_DIFF + WorldConstants.TREE_MIN_HEIGHT
@@ -269,8 +286,8 @@ export default class Chunk {
                 }
 
                 if (wo)
-                    for (let tx = wo; tx >= -wo; tx--) {
-                        for (let tz = wo; tz >= -wo; tz--) {
+                    for (let tx: number = wo; tx >= -wo; tx--) {
+                        for (let tz: number = wo; tz >= -wo; tz--) {
                             const vx = x + tx;
                             const vz = z + tz;
                             const vy = ty;
@@ -297,8 +314,8 @@ export default class Chunk {
                     const vz = z + tz;
                     const vy = y + treeHeight;
                     if (!this.getVoxel(vx, vy, vz)) {
-                        if (tx === wo || tx === -wo) {
-                            if (tz === wo || tz === -wo) {
+                        if (tx === wo || tx === -(wo as number)) {
+                            if (tz === wo || tz === -(wo as number)) {
                                 continue;
                             }
                         }
@@ -311,7 +328,7 @@ export default class Chunk {
         }
     }
 
-    getBlockType(height, y) {
+    getBlockType(height: number, y: number) {
         var type = WorldConstants.BLOCK_TYPES.STONE;
 
         // check which block type to set the voxel in chunk

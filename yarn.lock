@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@types/poisson-disk-sampling@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@types/poisson-disk-sampling/-/poisson-disk-sampling-2.2.0.tgz#a453fbfc3c18ea43c2f5fbd4e2895137fa01ba22"
+  integrity sha512-fbIHI+bjFksBhFW2BZRpS2Kk4aMhZcs7U1ohVGjteD4F4TS5CJ2G/SinXyueuIY7PDeJX3SgJe+cwfjBgT6Sdw==
+
 esbuild-android-64@0.14.36:
   version "0.14.36"
   resolved "https://registry.yarnpkg.com/esbuild-android-64/-/esbuild-android-64-0.14.36.tgz#fc5f95ce78c8c3d790fa16bc71bd904f2bb42aa1"

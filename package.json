@@ -8,10 +8,11 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "^4.5.4",
-    "vite": "^2.9.2",
+    "@types/poisson-disk-sampling": "^2.2.0",
     "poisson-disk-sampling": "^2.2.3",
     "simplex-noise": "^3.0.1",
-    "three": "0.119.1"
+    "three": "0.119.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.2"
   }
 }

@@ -1,11 +1,12 @@
 import * as THREE from "three";
 
-import World from "./World";
 import * as WorldConstants from "../constants/WorldConstants";
 import * as TextureConstants from "../constants/TextureConstants";
 
 export default class ChunkMesher {
-    constructor(chunk) {
+    chunk: any;
+    
+    constructor(chunk: any) {
         this.chunk = chunk;
     }
 
@@ -56,10 +57,10 @@ export default class ChunkMesher {
                                         normals.push(...dir);
                                         uvs.push(
                                             ((voxel.id + uv[0]) * TextureConstants.TILE_SIZE) /
-                                                TextureConstants.TILE_TEXTURE_WIDTH,
+                                            TextureConstants.TILE_TEXTURE_WIDTH,
                                             1 -
-                                                ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
-                                                    TextureConstants.TILE_TEXTURE_HEIGHT
+                                            ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
+                                            TextureConstants.TILE_TEXTURE_HEIGHT
                                         );
                                     } else {
                                         if (voxel === WorldConstants.BLOCK_TYPES.WATER) {
@@ -71,10 +72,10 @@ export default class ChunkMesher {
                                         t_normals.push(...dir);
                                         t_uvs.push(
                                             ((voxel.id + uv[0]) * TextureConstants.TILE_SIZE) /
-                                                TextureConstants.TILE_TEXTURE_WIDTH,
+                                            TextureConstants.TILE_TEXTURE_WIDTH,
                                             1 -
-                                                ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
-                                                    TextureConstants.TILE_TEXTURE_HEIGHT
+                                            ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
+                                            TextureConstants.TILE_TEXTURE_HEIGHT
                                         );
                                     }
                                 }
