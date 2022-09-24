@@ -7,7 +7,7 @@ import Chunk from "./Chunk.js";
 
 export default class ChunkMesher {
     chunk: Chunk;
-    
+
     constructor(chunk: Chunk) {
         this.chunk = chunk;
     }
@@ -23,10 +23,10 @@ export default class ChunkMesher {
         const indices = [];
         const uvs = [];
 
-        const t_positions = [];
-        const t_normals = [];
+        const t_positions: number[] = [];
+        const t_normals: number[] = [];
         const t_indices = [];
-        const t_uvs = [];
+        const t_uvs: number[] = [];
 
         const geometry = new THREE.BufferGeometry();
         const t_geometry = new THREE.BufferGeometry();
@@ -64,22 +64,24 @@ export default class ChunkMesher {
                                             ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
                                             TextureConstants.TILE_TEXTURE_HEIGHT
                                         );
-                                    } else {
-                                        if (voxel === WorldConstants.BLOCK_TYPES.WATER) {
-                                            t_positions.push(vx + pos[0], vy + pos[1] - 0.1, vz + pos[2]);
-                                        } else {
-                                            t_positions.push(vx + pos[0], vy + pos[1], vz + pos[2]);
-                                        }
-
-                                        t_normals.push(...dir);
-                                        t_uvs.push(
-                                            ((voxel.id + uv[0]) * TextureConstants.TILE_SIZE) /
-                                            TextureConstants.TILE_TEXTURE_WIDTH,
-                                            1 -
-                                            ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
-                                            TextureConstants.TILE_TEXTURE_HEIGHT
-                                        );
+                                        continue;
                                     }
+
+                                    if (voxel === WorldConstants.BLOCK_TYPES.WATER) {
+                                        t_positions.push(vx + pos[0], vy + pos[1] - 0.1, vz + pos[2]);
+                                    } else {
+                                        t_positions.push(vx + pos[0], vy + pos[1], vz + pos[2]);
+                                    }
+
+                                    t_normals.push(...dir);
+                                    t_uvs.push(
+                                        ((voxel.id + uv[0]) * TextureConstants.TILE_SIZE) /
+                                        TextureConstants.TILE_TEXTURE_WIDTH,
+                                        1 -
+                                        ((uvRow + 1 - uv[1]) * TextureConstants.TILE_SIZE) /
+                                        TextureConstants.TILE_TEXTURE_HEIGHT
+                                    );
+
                                 }
                                 /*
     
@@ -133,7 +135,8 @@ export default class ChunkMesher {
         );
         t_geometry.setAttribute("normal", new THREE.BufferAttribute(new Float32Array(t_normals), normalNumComponents));
         t_geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(t_uvs), uvNumComponents));
-        t_geometry.setIndex(t_indices);
+        const size = t_positions.length / 3;
+        t_geometry.setIndex(t_indices.filter(v => v < size));
 
         return { geometry, t_geometry };
     }
